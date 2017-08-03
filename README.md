@@ -3,6 +3,20 @@
 This project will be a complete solution including RocketMap front-end and Monocle backend.
 
 Screenshot:
+![alt text][logo]
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 [logo]: https://raw.githubusercontent.com/ultrafunkamsterdam/Rocketmap-Monocle/master/screenshot.png "Screenshot front-end"
 
