@@ -4,5 +4,5 @@ This project will be a complete solution including RocketMap front-end and Monoc
 
 Screenshot:
 
-
+[logo]: https://raw.githubusercontent.com/ultrafunkamsterdam/Rocketmap-Monocle/master/screenshot.png "Screenshot front-end"
 
