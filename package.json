@@ -1,0 +1,56 @@
+{
+  "name": "rocketmap-monocle",
+  "version": "0.1.0",
+  "description": "Rocketmap-Monocle | Monocle on the back, RocketMap on the front",
+  "main": "Gruntfile.js",
+  "dependencies": {
+    "babel-preset-env": "latest",
+    "babel-preset-es2015": "latest",
+    "eslint": "latest",
+    "eslint-config-standard": "latest",
+    "eslint-plugin-promise": "latest",
+    "eslint-plugin-standard": "latest",
+    "grunt": "latest",
+    "grunt-babel": "latest",
+    "grunt-cli": "latest",
+    "grunt-contrib-clean": "latest",
+    "grunt-contrib-concat": "latest",
+    "grunt-contrib-connect": "latest",
+    "grunt-contrib-copy": "latest",
+    "grunt-contrib-cssmin": "latest",
+    "grunt-contrib-uglify": "latest",
+    "grunt-contrib-watch": "latest",
+    "grunt-eslint": "latest",
+    "grunt-html-validation": "latest",
+    "grunt-include-file": "latest",
+    "grunt-legacssy": "latest",
+    "grunt-minjson": "latest",
+    "grunt-sass": "latest",
+    "grunt-unused": "latest",
+    "grunt-usemin": "latest",
+    "grunt-newer": "latest",
+    "jit-grunt": "latest"
+  },
+  "scripts": {
+    "postinstall": "grunt build",
+    "build": "grunt build",
+    "watch": "grunt default",
+    "lint": "grunt lint",
+    "grunt": "grunt"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UltrafunkAmsterdam/Rocketmap-Monocle.git"
+  },
+  "keywords": [
+    "Pokemon",
+    "Go"
+  ],
+  "author": "UltrafunkAmsterdam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/UltrafunkAmsterdam/Rocketmap-Monocle/issues"
+  },
+  "homepage": "https://github.com/UltrafunkAmsterdam/Rocketmap-Monocle/#readme",
+  "devDependencies": {}
+}
