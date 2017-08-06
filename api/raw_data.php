@@ -9,10 +9,12 @@
 // * CHANGED QUERY AND HANDLING ( NO CPU SPIKES! )
 
 header('content-type: application/json');
-$sessionTTL = 45;
 header("Access-Control-Allow-Origin: YOURSITEURL");
-session_start();
 
+include ('utils/utils.php');
+include ('../config/config.php');
+
+session_start();
 if (!isTrue($_SESSION['time_issued']) || !isTrue($_SESSION['time_left']) || $_SESSION['time_left'] <= 0) {
   unset($_SESSION['token']);
   unset($_SESSION['time_issued']);
@@ -26,11 +28,8 @@ else {
   $session_time_issued = $_SESSION['time_issued'];
   $session_time_left = $_SESSION['time_left'] = ($sessionTTL - (time() - $session_time_issued));
 }
-
 session_write_close();
 
-include ('utils/utils.php');
-include ('../config/config.php');
 
 function isTrue($var)
 {
@@ -91,8 +90,9 @@ $d['oSwLat'] = $swLat;
 $d['oSwLng'] = $swLng;
 $d['oNeLat'] = $neLat;
 $d['oNeLng'] = $neLng;
-global $noPokemon;
 
+
+global $noPokemon;
 if (!$noPokemon) {
   if ($d['lastpokemon'] == 'true') {
     if ($lastpokemon != 'true') {
@@ -120,8 +120,8 @@ if (!$noPokemon) {
   }
 }
 
-global $noPokestops;
 
+global $noPokestops;
 if (!$noPokestops) {
   if ($d['lastpokestops'] == 'true') {
     if ($lastpokestops != 'true') {
@@ -138,9 +138,9 @@ if (!$noPokestops) {
   }
 }
 
-global $noGyms, $noRaids;
 
-if (!$noGyms || !$noRaids) {
+global $noGyms
+if (!$noGyms) {
   if ($d['lastgyms'] == 'true') {
     if ($lastgyms != 'true') {
       $d['gyms'] = get_gyms($swLat, $swLng, $neLat, $neLng);
@@ -156,41 +156,6 @@ if (!$noGyms || !$noRaids) {
   }
 }
 
-global $noSpawnPoints;
-
-if (!$noSpawnPoints) {
-  if ($d['lastspawns'] == 'true') {
-    if ($lastspawns != 'true') {
-      $d['spawnpoints'] = get_spawnpoints($swLat, $swLng, $neLat, $neLng);
-    }
-    else {
-      if ($newarea) {
-        $d['spawnpoints'] = get_spawnpoints($swLat, $swLng, $neLat, $neLng, 0, $oSwLat, $oSwLng, $oNeLat, $oNeLng);
-      }
-      else {
-        $d['spawnpoints'] = get_spawnpoints($swLat, $swLng, $neLat, $neLng, $timestamp);
-      }
-    }
-  }
-}
-
-global $noScannedLocations;
-
-if (!$noScannedLocations) {
-  if ($d['lastslocs'] == 'true') {
-    if ($lastlocs != 'true') {
-      $d['scanned'] = get_recent($swLat, $swLng, $neLat, $neLng);
-    }
-    else {
-      if ($newarea) {
-        $d['scanned'] = get_recent($swLat, $swLng, $neLat, $neLng, 0, $oSwLat, $oSwLng, $oNeLat, $oNeLng);
-      }
-      else {
-        $d['scanned'] = get_recent($swLat, $swLng, $neLat, $neLng, $timestamp);
-      }
-    }
-  }
-}
 
 $jaysson = json_encode($d, false);
 echo $jaysson;
@@ -238,14 +203,15 @@ WHERE  expire_timestamp > :time
   }
 
   $pokemons = array();
-  $json_poke = '../static/data/pokemon.json';
+  $json_poke = '../Rocketmap/static/data/pokemon.json';
   $json_contents = file_get_contents($json_poke);
   $data = json_decode($json_contents, TRUE);
   $i = 0;
+
   /* fetch associative array */
   foreach($datas as $row) {
     $p = array();
-    $dissapear = isTrue($row['expire_timestamp']) ? $row['expire_timestamp'] * 1000 : null;
+    $disappear = isTrue($row['expire_timestamp']) ? $row['expire_timestamp'] * 1000 : null;
     $lat = isTrue($row['lat']) ? floatval($row['lat']) : null;
     $lon = isTrue($row['lon']) ? floatval($row['lon']) : null;
     $pokeid = isTrue($row['pokemon_id']) ? intval($row['pokemon_id']) : null;
@@ -261,8 +227,9 @@ WHERE  expire_timestamp > :time
     $cp = isTrue($row['cp']) ? intval($row['cp']) : 0;
     $cpm = isTrue($row['cp_multiplier']) ? floatval($row['cp_multiplier']) : 0;
     $level = isTrue($row['level']) ? intval($row['level']) : 0;
-    $p['disappear_time'] = $dissapear;
+    $p['disappear_time'] = $disappear;
     $p['encounter_id'] = $row['encounter_id'];
+    
     global $noHighLevelData;
     if (!$noHighLevelData) {
       $p['individual_attack'] = $atk;
@@ -326,9 +293,10 @@ AND    lon < :neLng', array_merge($pkmn_ids, [':timeStamp' => time() , ':swLat' 
   $json_contents = file_get_contents($json_poke);
   $data = json_decode($json_contents, TRUE);
   $i = 0;
+
   foreach($datas as $row) {
     $p = array();
-    $dissapear = $row['expire_timestamp'] * 1000;
+    $disappear = $row['expire_timestamp'] * 1000;
     $lat = floatval($row['lat']);
     $lon = floatval($row['lon']);
     $pokeid = intval($row['pokemon_id']);
@@ -344,22 +312,20 @@ AND    lon < :neLng', array_merge($pkmn_ids, [':timeStamp' => time() , ':swLat' 
     $cp = isTrue($row['cp']) ? intval($row['cp']) : null;
     $cpm = isTrue($row['cp_multiplier']) ? floatval($row['cp_multiplier']) : null;
     $level = isTrue($row['level']) ? intval($row['level']) : null;
-    $p['disappear_time'] = $dissapear;
+    
     $p['encounter_id'] = $row['encounter_id'];
-    global $noHighLevelData;
-    if (!$noHighLevelData) {
-      $p['individual_attack'] = $atk;
-      $p['individual_defense'] = $def;
-      $p['individual_stamina'] = $sta;
-      $p['move_1'] = $mv1;
-      $p['move_2'] = $mv2;
-      $p['weight'] = $weight;
-      $p['height'] = $height;
-      $p['cp'] = $cp;
-      $p['cp_multiplier'] = $cpm;
-      $p['level'] = $level;
-    }
 
+    $p['disappear_time'] = $disappear;
+    $p['individual_attack'] = $atk;
+    $p['individual_defense'] = $def;
+    $p['individual_stamina'] = $sta;
+    $p['move_1'] = $mv1;
+    $p['move_2'] = $mv2;
+    $p['weight'] = $weight;
+    $p['height'] = $height;
+    $p['cp'] = $cp;
+    $p['cp_multiplier'] = $cpm;
+    $p['level'] = $level;
     $p['latitude'] = $lat;
     $p['longitude'] = $lon;
     $p['gender'] = $gender;
@@ -370,7 +336,9 @@ AND    lon < :neLng', array_merge($pkmn_ids, [':timeStamp' => time() , ':swLat' 
     $p['pokemon_types'] = $data[$pokeid]['types'];
     $p['spawnpoint_id'] = $row['spawn_id'];
     $pokemons[] = $p;
+
     unset($datas[$i]);
+
     $i++;
   }
 
@@ -582,6 +550,7 @@ WHERE t3.lat > :swLat
   $json_contents = file_get_contents($json_poke);
   $data = json_decode($json_contents, TRUE);
   foreach($datas as $row) {
+    
     $lat = floatval($row['lat']);
     $lon = floatval($row['lon']);
     $gpid = intval($row['guard_pokemon_id']);
@@ -590,8 +559,10 @@ WHERE t3.lat > :swLat
     $ti = isTrue($row['team']) && !empty($row['team']) ? intval($row['team']) : null;
     $tc = isTrue($row['total_cp']) && !empty($row['total_cp']) ? intval($row['total_cp']) : null;
     $sa = isTrue($row['slots_available']) && !empty($row['slots_available']) ? intval($row['slots_available']) : 0;
+
     $p = array();
     $raid = array();
+
     $p['enabled'] = isTrue($row['enabled']) && !empty($row['enabled']) ? boolval($row['enabled']) : true;
     $p['guard_pokemon_id'] = $gpid;
     $p['gym_id'] = $row['external_id'];
@@ -602,8 +573,9 @@ WHERE t3.lat > :swLat
     $p['longitude'] = $lon;
     $p['name'] = isTrue($row['name']) && !empty($row['name']) ? $row['name'] : null;
     $p['pokemon'] = [];
-    $p['team_id'] = isTrue($row['team']) && !empty($row['team']) ? $row['team'] : 0;
-    $p['total_cp'] = 0;
+    $p['team_id'] = isTrue($row['team']) && !empty($row['team']) ? $row['team'] : null;
+    $p['total_cp'] = null;
+
     $raid['seed'] = isTrue($row['raid_seed']) && !empty($row['raid_seed']) ? intval($row['raid_seed']) : null;
     $raid['level'] = isTrue($row['raid_level']) && !empty($row['raid_level']) ? intval($row['raid_level']) : 0;
     $raid['spawn'] = isTrue($row['raid_spawn']) && !empty($row['raid_spawn']) ? intval($row['raid_spawn']) * 1000 : 0;
@@ -621,77 +593,15 @@ WHERE t3.lat > :swLat
     $raid['pokemon_name'] = isTrue($data[$raid['pokemon_id']]['name']) ? i8ln($data[$raid['pokemon_id']]['name']) : null;
     $raid['pokemon_rarity'] = isTrue($data[$raid['pokemon_id']]['rarity']) ? i8ln($data[$raid['pokemon_id']]['rarity']) : null;
     $raid['pokemon_types'] = isTrue($data[$raid['pokemon_id']]['types']) ? i8ln($data[$raid['pokemon_id']]['types']) : null;
+    
     $p['raid'] = $raid;
+    
     $gyms[$row['external_id']] = $p;
     unset($datas[$i]);
     $i++;
   }
 
   return $gyms;
-}
-
-function get_spawnpoints($swLat, $swLng, $neLat, $neLng, $tstamp = 0, $oSwLat = 0, $oSwLng = 0, $oNeLat = 0, $oNeLng = 0)
-{
-  global $db;
-  $datas = array();
-  if ($swLat == 0) {
-    $datas = $db->query('SELECT lat, lon, spawn_id, despawn_time FROM spawnpoints WHERE updated > 0')->fetchAll();
-  }
-  elseif ($tstamp > 0) {
-    $datas = $db->query('SELECT lat, 
-       lon, 
-       spawn_id, 
-       despawn_time 
-FROM   spawnpoints 
-WHERE  updated > :updated
-AND    lat > :swLat 
-AND    lon > :swLng
-AND    lat < :neLat 
-AND    lon < :neLng', ['updated' => $tstamp, ':swLat' => $swLat, ':swLng' => $swLng, ':neLat' => $neLat, ':neLng' => $neLng])->fetchAll();
-  }
-  elseif ($oSwLat != 0) {
-    $datas = $db->query('SELECT lat, 
-       lon, 
-       spawn_id, 
-       despawn_time 
-FROM   spawnpoints 
-WHERE  updated > 0 
-       AND lat > :swLat  
-       AND lon > :swLng 
-       AND lat < :neLat 
-       AND lon <  :neLng  
-       AND NOT( lat >  :oSwLat 
-                AND lon >  :oSwLng
-                AND lat <  :oNeLat
-                AND lon <  :oNeLng ) ', [':swLat' => $swLat, ':swLng' => $swLng, ':neLat' => $neLat, ':neLng' => $neLng, ':oSwLat' => $oSwLat, ':oSwLng' => $oSwLng, ':oNeLat' => $oNeLat, ':oNeLng' => $oNeLng])->fetchAll();
-  }
-  else {
-    $datas = $db->query('SELECT lat, 
-       lon, 
-       spawn_id, 
-       despawn_time 
-FROM   spawnpoints 
-WHERE  updated > 0 
-AND    lat >  :swLat  
-AND    lon >  :swLng 
-AND    lat < :neLat 
-AND    lon < :neLng', [':swLat' => $swLat, ':swLng' => $swLng, ':neLat' => $neLat, ':neLng' => $neLng])->fetchAll();
-  }
-
-  $spawnpoints = array();
-  $i = 0;
-  foreach($datas as $row) {
-    $p = array();
-    $p['latitude'] = floatval($row['lat']);
-    $p['longitude'] = floatval($row['lon']);
-    $p['spawnpoint_id'] = $row['spawn_id'];
-    $p['time'] = intval($row['despawn_time']);
-    $spawnpoints[] = $p;
-    unset($row[$i]);
-    $i++;
-  }
-
-  return $spawnpoints;
 }
 
 function get_recent($swLat, $swLng, $neLat, $neLng, $tstamp = 0, $oSwLat = 0, $oSwLng = 0, $oNeLat = 0, $oNeLng = 0)
