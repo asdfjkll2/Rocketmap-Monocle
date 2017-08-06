@@ -28,9 +28,9 @@ else {
 }
 
 session_write_close();
-include ('utils.php');
 
-include ('config.php');
+include ('utils/utils.php');
+include ('../config/config.php');
 
 function isTrue($var)
 {

@@ -1,3 +1,6 @@
 [submodule "Monocle"]
 	path = Monocle
 	url = https://github.com/ultrafunkamsterdam/Monocle.git
+[submodule "Rocketmap"]
+	path = Rocketmap
+	url = https://github.com/RocketMap/RocketMap.git
