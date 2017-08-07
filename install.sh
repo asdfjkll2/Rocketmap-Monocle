@@ -39,7 +39,7 @@ function error_exit {
 
 function success_exit {
     echo "${__NAME__} : ${1:-"Completed"}" 1>&2
-	clean_up 0
+    
 }
 
  
@@ -111,7 +111,17 @@ pip3.6 install --upgrade pip
 pip3.6 install setuptools --upgrade
 sed -i.bak '/mysqlclient/d' ./optional-requirements.txt 1>&2
 pip3.6 install -r requirements.txt --upgrade -r optional-requirements.txt --upgrade
+
+
+## CONFIG FILE NEEDS TO BE IN PLACE AT THIS POINT
+
+if [ ! -f ${INST_DIR}/Monocle/monocle/config.py ]; then
+error_exit "No Monocle config.py file present in ${INST_DIR}/Monocle/monocle/"
+fi
+## WIP ## 
+
 python3.6 scripts/create_db.py
+cd $__DIR__
 deactivate
 
 success_exit "Installation completed."
