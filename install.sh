@@ -105,7 +105,7 @@ su -c "psql -c \"CREATE DATABASE monocle\"" postgres
 su -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE monocle TO monocle\"" postgres
 
 
-cd ${INST_DIR} && [[ $VIRTUALENV ]] && python3.6 -m venv . && . bin/activate ; } || { error_exit "Installation folder not found or error in Virtual Environment" ;}
+cd ${INST_DIR} && { [[ $VIRTUALENV ]] && python3.6 -m venv . && . bin/activate ; } || { error_exit "Installation folder not found or error in Virtual Environment" ;}
 pip3.6 install --upgrade pip
 pip3.6 install setuptools --upgrade
 sed -i.bak '/mysqlclient/d' ./optional-requirements.txt 1>&2
