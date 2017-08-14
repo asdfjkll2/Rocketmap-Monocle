@@ -9,7 +9,23 @@
 // * CHANGED QUERY AND HANDLING ( NO CPU SPIKES! )
 
 header('content-type: application/json');
-header("Access-Control-Allow-Origin: YOURSITEURL");
+header("Access-Control-Allow-Origin: YOURHOST.TLD");
+
+$referer_raw = $_SERVER['HTTP_REFERER'];
+$referer_url = parse_url($referer_raw);
+$referer_host = $referer_url['host'];
+$allowed_referers = array('yourdomain.nl', 'sub.yourdomain.tld', '127.0.0.1'); //127.0.0.1 for ex: local testing
+
+$d = array();
+
+if(!in_array($referer_host, $allowed_referers)){
+    $d['status'] = "referer-not-allowed: $referer_host";
+    http_response_code(400);
+    die();
+ } 
+else{
+    $d['status'] = "OK";
+}
 
 include ('utils/utils.php');
 include ('../config/config.php');
@@ -533,10 +549,12 @@ FROM   (SELECT fort_id,
         FROM   fort_sightings 
         GROUP BY fort_id) t2 
       LEFT JOIN fort_sightings t1 
-              ON        t2.fort_id = t1.fort_id 
+            ON        t2.fort_id = t1.fort_id 
                 AND       t2.maxlastmodified = t1.last_modified 
       LEFT JOIN forts t3 
-              ON        t1.fort_id = t3.id 
+            ON        t1.fort_id = t3.id 
+      LEFT JOIN raid_info t4
+            ON t2.fort_id = t4.fort_id
 WHERE t3.lat > :swLat
         AND t3.lon > :swLng 
         AND t3.lat < :neLat 
